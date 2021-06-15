@@ -1,13 +1,11 @@
 <?php
 /**
- * Crypto Payment API
+ * Usd2Pay Payment API
  *
  * The Class for Process Crypto Payment Gateways
  * Copyright (c) 2018 - 2021, Foris Limited ("Crypto.com")
  *
- * @class      Crypto_Payment_Api
- * @package    Crypto/Classes
- * @located at /includes/
+ * @class      Usd2Pay_Payment_Api
  */
 
 if (!defined('ABSPATH')) {
@@ -15,14 +13,14 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * The Class for Processing Crypto Payment API
+ * The Class for Processing Usd2Pay Payment API
  */
-class Crypto_Payment_Api
+class Usd2Pay_Payment_Api
 {
     /**
      * payment api url
      *
-     * @var string $crypto_api_payment_url
+     * @var string $usd2pay_payment_url
      */
     protected static $crypto_api_payment_url = 'https://pay.crypto.com/api/payments/';
     protected static $crypto_api_refund_url = 'https://pay.crypto.com/api/refunds/';

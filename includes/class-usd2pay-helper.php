@@ -1,12 +1,11 @@
 <?php
 /**
- * Crypto Helper
+ * Usd2Pay Helper
  *
  * Helper for reuseable function
- * Copyright (c) 2018 - 2021, Foris Limited ("Crypto.com")
+ * Copyright (c) 2020 - 2021, Foris Limited ("usd2pay.com")
  *
- * @class       Crypto_Helper
- * @package     Crypto/Classes
+ * @class       Usd2Pay_Payment_Helper
  * @located at  /includes/
  */
 
@@ -17,7 +16,7 @@ if (!defined('ABSPATH')) {
 /**
  * helper for reuseable function
  */
-class Crypto_Helper
+class Usd2Pay_Helper
 {
     /**
      * get request value
