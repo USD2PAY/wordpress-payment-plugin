@@ -6,7 +6,6 @@
  * Copyright (c) 2020 - 2021, Foris Limited ("usd2pay.com")
  *
  * @class       Usd2Pay_Payment_Helper
- * @located at  /includes/
  */
 
 if (!defined('ABSPATH')) {

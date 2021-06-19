@@ -1,12 +1,11 @@
 <?php
 /**
- * Crypto Payment Button
+ * usd2pay Payment Button
  *
- * The file is for displaying the Crypto payment button
- * Copyright (c) 2018 - 2021, Foris Limited ("Crypto.com")
+ * The file is for displaying the usd2pay payment button
+ * Copyright (c) 2020 - 2021, Foris Limited ("usd2pay.com")
  *
- * @package     Crypto/Templates
- * @located at  /template/ckeckout/
+ * @package     usd2pay/Templates
  */
 
 if (!defined('ABSPATH')) {

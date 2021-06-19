@@ -1,20 +1,18 @@
 <?php
 /**
- * Crypto.com Pay Signature Helper
+ * usd2pay.com Pay Signature Helper
  *
  * Helper for signature function
- * Copyright (c) 2018 - 2021, Foris Limited ("Crypto.com")
+ * Copyright (c) 2020 - 2021, Foris Limited ("usd2pay.com")
  *
- * @class       Crypto_Signature
- * @package     Crypto/Classes
- * @located at  /includes/
+ * @class       Usd2Pay_Signature
  */
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-class Crypto_Signature
+class Usd2Pay_Signature
 {
     const EXPECTED_SCHEME = 'v1';
 
@@ -26,14 +24,14 @@ class Crypto_Signature
         $timestamp = self::get_timestamp($header);
         $signatures = self::get_signatures($header, self::EXPECTED_SCHEME);
         if (-1 === $timestamp) {
-            throw Crypto_Signature_Verification_Exception::factory(
+            throw Usd2Pay_Signature_Verification_Exception::factory(
                 'Unable to extract timestamp and signatures from header',
                 $payload,
                 $header
             );
         }
         if (empty($signatures)) {
-            throw Crypto_Signature_Verification_Exception::factory(
+            throw Usd2Pay_Signature_Verification_Exception::factory(
                 'No signatures found with expected scheme',
                 $payload,
                 $header
@@ -57,7 +55,7 @@ class Crypto_Signature
         }
 
         if (!$signatureFound) {
-            throw Crypto_Signature_Verification_Exception::factory(
+            throw Usd2Pay_Signature_Verification_Exception::factory(
                 'No signatures found matching the expected signature for payload',
                 $payload,
                 $header
@@ -65,7 +63,7 @@ class Crypto_Signature
         }
 
         if (($tolerance > 0) && (\abs(\time() - $timestamp) > $tolerance)) {
-            throw Crypto_Signature_Verification_Exception::factory(
+            throw Usd2Pay_Signature_Verification_Exception::factory(
                 'Timestamp outside the tolerance zone',
                 $payload,
                 $header
@@ -135,10 +133,10 @@ class Crypto_Signature
     }
 }
 
-class Crypto_Signature_Verification_Exception extends \Exception
+class Usd2Pay_Signature_Verification_Exception extends \Exception
 {
     public function factory($message, $payload, $header) {
-        return new Crypto_Signature_Verification_Exception($message."\n".$payload."\n".$header);
+        return new Usd2Pay_Signature_Verification_Exception($message."\n".$payload."\n".$header);
     }
 
     // Redefine the exception so message isn't optional

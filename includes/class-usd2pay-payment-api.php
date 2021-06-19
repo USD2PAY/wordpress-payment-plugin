@@ -3,7 +3,7 @@
  * Usd2Pay Payment API
  *
  * The Class for Process Crypto Payment Gateways
- * Copyright (c) 2018 - 2021, Foris Limited ("Crypto.com")
+ * Copyright (c) 2020 - 2021, Foris Limited ("usd2pay.com")
  *
  * @class      Usd2Pay_Payment_Api
  */
@@ -22,8 +22,7 @@ class Usd2Pay_Payment_Api
      *
      * @var string $usd2pay_payment_url
      */
-    protected static $crypto_api_payment_url = 'https://pay.crypto.com/api/payments/';
-    protected static $crypto_api_refund_url = 'https://pay.crypto.com/api/refunds/';
+    protected static $crypto_api_payment_url = 'https://api.usd2pay.com/customer_api/v2/merchant/'; // + :merchantId/order/
 
     /**
      * Get http response
@@ -91,7 +90,7 @@ class Usd2Pay_Payment_Api
      * @param string $secret_key secret key
      * @since 1.3.0
      */
-    public static function request_payment($order_id, $currency, $amount, $customer_name, $return_url, $cancel_url, $secret_key) 
+    public static function request_payment($order_id, $currency, $amount, $customer_name, $return_url, $cancel_url, $merchantId, $secret_key) 
     {
         $data = array(
             'order_id' => $order_id,
@@ -107,9 +106,11 @@ class Usd2Pay_Payment_Api
             'return_url' => $return_url,
             'cancel_url' => $cancel_url
         );
-
-        return self::get_http_response(self::$crypto_api_payment_url, $secret_key, 'post', $data);
+        $apiEndPoint = self::$crypto_api_payment_url . $merchantId . '/order';
+        return self::get_http_response($apiEndPoint, $secret_key, 'post', $data);
     }
+
+
 
     /**
      * retrieve a payment by payment unique id
@@ -124,30 +125,6 @@ class Usd2Pay_Payment_Api
         return self::get_http_response($crypto_api_payment_url, $secret_key);
     }
 
-    /**
-     * request a refund by payment unique id
-     *
-     * @param string $payment_id payment id
-     * @param string $order_id WooCommerce order id
-     * @param string $currency currency
-     * @param string $amount amount
-     * @param string $reason reason
-     * @param string $secret_key secret key
-     * @return array
-     * @since 1.1.0
-     */
-    public static function request_refund($payment_id, $order_id, $currency, $amount, $reason, $secret_key)
-    {
-
-        $data = array(
-            'payment_id' => $payment_id,
-            'currency' => $currency,
-            'amount' => (float) $amount * 100,
-            'reason' => $reason,
-            'description' => 'Refund for WooCommerce order ID: ' . $order_id,
-        );
-
-        return self::get_http_response(self::$crypto_api_refund_url, $secret_key, 'post', $data);
-    }
+ 
 
 }
