@@ -22,7 +22,7 @@ class Usd2Pay_Payment_Api
      *
      * @var string $usd2pay_payment_url
      */
-    protected static $crypto_api_payment_url = 'https://api.usd2pay.com/customer_api/v2/merchant/'; // + :merchantId/order/
+    protected static $crypto_api_payment_url = 'http://04c3418a40ee.ngrok.io/customer_api/v2/merchant/'; // + :merchantId/order/
 
     /**
      * Get http response
@@ -35,38 +35,59 @@ class Usd2Pay_Payment_Api
      */
     private static function get_http_response($url, $secret_key, $method = 'get', $data = '')
     {
-
+        
         if ('get' === $method) {
             $response = wp_remote_get($url,
                 array(
                     'headers' => array(
-                        'Authorization' => 'Bearer ' . $secret_key,
+                        'Content-Type' => 'application/json; charset=utf-8',
+                        'Content-Length: ' . strlen($data),
                     ),
+                    'timeout'     => 30,
+                    'sslverify'   => false,
+                    'method' => 'GET',
+                    
                 )
             );
         } else {
+            
             $response = wp_remote_post($url,
                 array(
                     'headers' => array(
-                        'Authorization' => 'Bearer ' . $secret_key,
+                        'Content-Type' => 'application/json; charset=utf-8',
+                        'Content-Length: ' . strlen($data),
                     ),
-                    'body' => $data,
+                    'timeout'     => 30,
+                    'sslverify'   => false,
+                    'method' => 'POST',
+                    'body' => json_encode($data),
                 )
             );
         }
 
         $result = array();
 
-        // if wordpress error
+        // // if wordpress error
+        // echo "<script> console.log('" . is_wp_error($response) .  "')</script>";
+        // echo "<script> console.log('" . wp_remote_retrieve_response_code( $response )  .  "')</script>";
+        
         if (is_wp_error($response)) {
             $result['error'] = $response->get_error_message();
             $result['request'] = $data;
             return $result;
         }
 
-        $response = wp_remote_retrieve_body($response);
-        $response_json = json_decode($response, true);
+        if($response['response']["code"] != 200) {
+            $result['error'] = $response['response']["message"];
+            $result['request'] = $data;
+            $result['endpoint'] = $url;
+            return $result;
+        }
 
+        $response = wp_remote_retrieve_body($response);
+        
+        $response_json = json_decode($response, true);
+        
         // if outgoing request get back a normal response, but containing an error field in JSON body
         if ($response_json['error']) {
             $result['error'] = $response_json['error'];
@@ -90,23 +111,18 @@ class Usd2Pay_Payment_Api
      * @param string $secret_key secret key
      * @since 1.3.0
      */
-    public static function request_payment($order_id, $currency, $amount, $customer_name, $return_url, $cancel_url, $merchantId, $secret_key) 
+    public static function request_payment($order_id, $currency, $amount, $customer_email, $merchant_id, $secret_key) 
     {
         $data = array(
-            'order_id' => $order_id,
+            "customerEmail" => $customer_email,
+            'merchantCompareOrderId' => (string) $order_id,
+            'amount' => (float) $amount,
             'currency' => $currency,
-            'amount' => (float) $amount * 100,
-            'reason' => $reason,
-            'description' => 'WooCommerce order ID: ' . $order_id,
-            'metadata' => array (
-                'customer_name' => $customer_name,
-				'plugin_name' => 'woocommerce',
-                'plugin_flow' => 'redirect'
-            ),
-            'return_url' => $return_url,
-            'cancel_url' => $cancel_url
         );
-        $apiEndPoint = self::$crypto_api_payment_url . $merchantId . '/order';
+        $data['hash'] = hash('sha256', $merchant_id.$data['customerEmail'].$data['merchantCompareOrderId'].$data['amount'].$data['currency'].$secret_key);
+        
+        $apiEndPoint = self::$crypto_api_payment_url . $merchant_id . '/order';
+    
         return self::get_http_response($apiEndPoint, $secret_key, 'post', $data);
     }
 
