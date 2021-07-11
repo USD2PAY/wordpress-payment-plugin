@@ -22,7 +22,7 @@ class Usd2Pay_Payment_Api
      *
      * @var string $usd2pay_payment_url
      */
-    protected static $crypto_api_payment_url = 'http://04c3418a40ee.ngrok.io/customer_api/v2/merchant/'; // + :merchantId/order/
+    protected static $usd2pay_api_payment_url = 'http://355fe88fb759.ngrok.io/customer_api/v2/merchant/'; // + :merchantId/order/
 
     /**
      * Get http response
@@ -87,7 +87,7 @@ class Usd2Pay_Payment_Api
         $response = wp_remote_retrieve_body($response);
         
         $response_json = json_decode($response, true);
-        
+
         // if outgoing request get back a normal response, but containing an error field in JSON body
         if ($response_json['error']) {
             $result['error'] = $response_json['error'];
@@ -121,26 +121,9 @@ class Usd2Pay_Payment_Api
         );
         $data['hash'] = hash('sha256', $merchant_id.$data['customerEmail'].$data['merchantCompareOrderId'].$data['amount'].$data['currency'].$secret_key);
         
-        $apiEndPoint = self::$crypto_api_payment_url . $merchant_id . '/order';
+        $apiEndPoint = self::$usd2pay_api_payment_url . $merchant_id . '/order';
     
         return self::get_http_response($apiEndPoint, $secret_key, 'post', $data);
     }
-
-
-
-    /**
-     * retrieve a payment by payment unique id
-     *
-     * @param string $payment_id payment id.
-     * @param string $secret_key secret key.
-     * @return array
-     */
-    public static function retrieve_payment($payment_id, $secret_key)
-    {
-        $crypto_api_payment_url = self::$crypto_api_payment_url . $payment_id;
-        return self::get_http_response($crypto_api_payment_url, $secret_key);
-    }
-
- 
 
 }

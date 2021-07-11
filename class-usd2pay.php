@@ -605,23 +605,34 @@ function usd2pay_process_webhook(WP_REST_Request $request)
 {
     
     $json = $request->get_json_params();
-    $currency = $json['currency'];
+
+    $payment_gateway_id = 'usd2pay';
+
+    // Get an instance of the WC_Payment_Gateways object
+    $payment_gateways = WC_Payment_Gateways::instance();
+
+    // Get the desired WC_Payment_Gateway object
+    $payment_gateway = $payment_gateways->payment_gateways()[$payment_gateway_id];
+    
+    $merchant_id = ($payment_gateway->settings['environment'] == 'production' ? $payment_gateway->settings['live_merchant_id'] : $payment_gateway->settings['test_merchant_id']); 
+    
+    $merchant_id_replace =  str_replace("-","", $merchant_id);
+
+    $decrypted = openssl_decrypt($json['value'], 'aes-256-cbc', $merchant_id_replace, 0, $json['iv']);
+    $decrypted = json_decode($decrypted);
     
     // return $currency;
-    if ($currency == "USDT") {
+    if ($decrypted->currency == "USDT") {
 
         // handle payment capture event from Crypto.com Pay server webhook
         // if payment is captured (i.e. status = 'succeeded'), set woo order status to processing
         
-        
-            $order_id = $json['merchantOrderId'];
+            $order_id = $decrypted->merchantOrderId;
             $order = wc_get_order($order_id);
-            print_r($order_id);
             
             if (!is_null($order)) {
                 return $order->update_status('completed');
             }
-        
 
     }
 
