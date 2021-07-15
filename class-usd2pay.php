@@ -210,16 +210,15 @@ function cp_load_usd2payment_gateway()
                         ),
                         'default' => 'test',
                     ),
-                    // 'checkout_experience' => array(
-                    //     'title' => __('Checkout Experience', 'usd2pay'),
-                    //     'type' => 'select',
-                    //     'description' => __('In <strong>Redirection</strong> mode, your customers will be redirected to Crypto.com\'s payment page. After the payment is finished, they will be redirected back to your shop. In <strong>Popup</strong> mode, your customers will be redirected to a confirmation page within your store. Your customers will need to click on a Pay button to launch a payment popup and complete the payment.'),
-                    //     'options' => array(
-                    //         'redirect' => 'Redirection',
-                    //         'popup' => 'Popup',
-                    //     ),
-                    //     'default' => 'redirect',
-                    // ),
+                    'exchange' => array(
+                        'title' => __('Exchange Rate', 'usd2pay'),
+                        'type' => 'number',
+                        'step' => '0.01',
+                        'default' => '1',
+                        'options' => array(
+                            'step' => '0.01'
+                        )
+                    ),
                 );
 
                 return $form_fields;
@@ -268,6 +267,7 @@ function cp_load_usd2payment_gateway()
                             }
                         } );
                     });
+                    jQuery('#woocommerce_usd2pay_exchange').attr( 'step', 0.01 );
                 </script>
                 <?php
             }
@@ -286,7 +286,7 @@ function cp_load_usd2payment_gateway()
 
                 // 1.0.0 redirect to payment out if redirect flow is selected (or no flow selected)
                 
-                    $amount = $order->get_total();
+                    $amount = $order->get_total() * $this->settings['exchange'];
                     // $currency = $order->get_currency();
                     $currency = 'USDT';
                     $customer_name = $order->get_billing_first_name() . " " . $order->get_billing_last_name();
