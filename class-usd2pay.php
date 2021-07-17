@@ -190,11 +190,6 @@ function cp_load_usd2payment_gateway()
                         'default' => '',
                     ),
 
-                    'test_merchant_id' => array(
-                        'title' => __('Test Merchant id', 'usd2pay'),
-                        'type' => 'password',
-                        'default' => '',
-                    ),
                     'live_merchant_id' => array(
                         'title' => __('Live Merchant id', 'usd2pay'),
                         'type' => 'password',
@@ -292,7 +287,7 @@ function cp_load_usd2payment_gateway()
                     $customer_name = $order->get_billing_first_name() . " " . $order->get_billing_last_name();
                     $customer_email = $order_data['billing']['email'];
                     $secret_key = ($this->settings['environment'] == 'production' ? $this->settings['live_secret_key'] : $this->settings['test_secret_key']);
-                    $merchant_id = ($this->settings['environment'] == 'production' ? $this->settings['live_merchant_id'] : $this->settings['test_merchant_id']);
+                    $merchant_id = $this->settings['live_merchant_id'];
                     
                     $return_url = $order->get_checkout_order_received_url();
                     $cancel_url = $payment_url;
@@ -307,8 +302,7 @@ function cp_load_usd2payment_gateway()
                             'messages' => 'failure'
                         );
                     }
-                    print_r($result);
-                    print_r('http://localhost:8080/merchant#/pay/'.$result['success']['data']["address"].'/'.$result['success']['data']["cryptoAmount"].'/'.$result['success']['data']["amount"].'/'.$result['success']['data']["currency"].'/'.$result['success']['data']["tokenAddress"].'/'.$merchant_id.'/'.$result['success']['data']["orderId"]);
+                    
                     $redirect = 'http://localhost:8080/merchant#/pay/'.$result['success']['data']["address"].'/'.$result['success']['data']["cryptoAmount"].'/'.$result['success']['data']["amount"].'/'.$result['success']['data']["currency"].'/'.$result['success']['data']["tokenAddress"].'/'.$merchant_id.'/'.$result['success']['data']["orderId"];
                     
                     $payment_id = $result['success']['data']['orderId'];
@@ -614,7 +608,7 @@ function usd2pay_process_webhook(WP_REST_Request $request)
     // Get the desired WC_Payment_Gateway object
     $payment_gateway = $payment_gateways->payment_gateways()[$payment_gateway_id];
     
-    $merchant_id = ($payment_gateway->settings['environment'] == 'production' ? $payment_gateway->settings['live_merchant_id'] : $payment_gateway->settings['test_merchant_id']); 
+    $merchant_id = $payment_gateway->settings['live_merchant_id']; 
     
     $merchant_id_replace =  str_replace("-","", $merchant_id);
 
