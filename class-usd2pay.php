@@ -91,7 +91,7 @@ ob_start();
 function cp_notice_activate_woocommerce()
 {
 
-    echo '<div id="message" class="error notice is-dismissible"><p><strong>Usd2Pay Checkout: </strong>' .
+    echo '<div id="message" class="error notice is-dismissible"><p><strong>USD2Pay Checkout: </strong>' .
     esc_attr(__('WooCommerce must be active to make this plugin working properly', 'usd2pay')) .
         '</p></div>';
 }
@@ -142,7 +142,7 @@ function cp_load_usd2payment_gateway()
             {
                 $plugin_dir = plugin_dir_url(__FILE__);
                 $this->form_fields = $this->get_crypto_form_fields();
-                $this->method_title = __('Usd2Pay', 'usd2pay');
+                $this->method_title = __('USD2Pay', 'usd2pay');
                 $this->method_description = __('接受 USDT 和更多加密貨幣而沒有價格波動的風險', 'usd2pay');
                 $this->icon = apply_filters('woocommerce_gateway_icon', '' . $plugin_dir . '/assets/icon.svg', $this->id);
 
@@ -234,9 +234,9 @@ function cp_load_usd2payment_gateway()
 
             public function admin_options() {
                 ?>
-                <h2>Usd2Pay</h2>
+                <h2>USD2Pay</h2>
                 <p><strong>Accept USDT and more cryptocurrencies without the risk of price fluctuation.</strong></p>
-                <p>Please login to <a href="https://usd2pay.com/merchant#/transactionList" target="_blank">Usd2Pay Merchant Dashboard</a>
+                <p>Please login to <a href="https://usd2pay.com/merchant#/transactionList" target="_blank">USD2Pay Merchant Dashboard</a>
                 to get your API keys to fill into the forms below. You will also need to add a webhook 
                 in Merchant Dashboard so that payment refund status are synchronized back to WooCommerce.
                 Please refer to <a href="http://support.usd2pay.com/" target="_blank">this FAQ page</a> for the detail setup guide.</p>
