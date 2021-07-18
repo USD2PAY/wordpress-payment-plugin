@@ -55,6 +55,19 @@ function my_http_request_args( $r ) {
     return $r;
 }
 
+add_filter( 'woocommerce_currencies', 'add_usdt_currency' );
+function add_usdt_currency( $usdt_currency ) {
+     $usdt_currency['USDT'] = __( 'USDT', 'woocommerce' );
+     return $usdt_currency;
+}
+add_filter('woocommerce_currency_symbol', 'add_usdt_currency_symbol', 10, 2);
+function add_usdt_currency_symbol( $custom_currency_symbol, $custom_currency ) {
+     switch( $custom_currency ) {
+         case 'USDT': $custom_currency_symbol = 'USDT$'; break;
+     }
+     return $custom_currency_symbol;
+}
+
 //Setting WP HTTP API Timeout
 add_action('http_api_curl', 'my_http_api_curl', 100, 1);
 function my_http_api_curl( $handle ) {
@@ -620,12 +633,27 @@ function usd2pay_process_webhook(WP_REST_Request $request)
 
         // handle payment capture event from Crypto.com Pay server webhook
         // if payment is captured (i.e. status = 'succeeded'), set woo order status to processing
-        
+        /**
+         * {
+        *            "orderId": "xxxxxxxx-e7ab-11eb-b602-ed9f2e20eac2",
+        *            "merchantOrderId": "xx",
+        *            "customerEmail": "xxx@gmail.com",
+        *            "amount": 354,
+        *            "currency": "USDT"
+        *        }
+         * 
+         * */
             $order_id = $decrypted->merchantOrderId;
             $order = wc_get_order($order_id);
             
             if (!is_null($order)) {
+                // update_post_meta( $post_id, '_order_currency', $_POST['_wcj_order_currency'] );
+                $order->set_currency($decrypted->currency);
+                $order->set_total($decrypted->amount);
                 return $order->update_status('completed');
+                
+                
+                
             }
 
     }
