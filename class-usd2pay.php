@@ -144,7 +144,7 @@ function cp_load_usd2payment_gateway()
                 $this->form_fields = $this->get_crypto_form_fields();
                 $this->method_title = __('USD2Pay', 'usd2pay');
                 $this->method_description = __('接受 USDT 和更多加密貨幣而沒有價格波動的風險', 'usd2pay');
-                $this->icon = apply_filters('woocommerce_gateway_icon', '' . $plugin_dir . '/assets/icon.svg', $this->id);
+                $this->icon = apply_filters('woocommerce_gateway_icon', '' . $plugin_dir . '/assets/usd2pay.jpg', $this->id);
 
                 $this->supports = array('products', 'refunds');
 
@@ -320,6 +320,7 @@ function cp_load_usd2payment_gateway()
                     
                     $payment_id = $result['success']['data']['orderId'];
                     $order->add_meta_data('usd2pay_paymentId', $payment_id, true);
+                    $order->add_meta_data('usd2pay_exchange', $this->settings['exchange'], true);
                     $order->save_meta_data();
 
 
@@ -646,14 +647,22 @@ function usd2pay_process_webhook(WP_REST_Request $request)
             $order_id = $decrypted->merchantOrderId;
             $order = wc_get_order($order_id);
             
+            
+            $usd2pay_exchange = get_post_meta( $order->get_id(), 'usd2pay_exchange', true );
+            // return intval($usd2pay_exchange);
             if (!is_null($order)) {
-                // update_post_meta( $post_id, '_order_currency', $_POST['_wcj_order_currency'] );
+                $cart_discount = 0;
+                foreach ($order->get_items() as $item_id => $item ) {
+                    $item_quantity  = $item->get_quantity(); // Get the item quantity
+                    $item_total  = $item->get_total(); // Get the item line total non discounted
+                    echo '| Quantity: '.$item_quantity.' | Item total: '. number_format( $item_total, 2 );
+                    $cart_discount += $item_total;
+                }
+                $cart_discount = $cart_discount - $decrypted->amount;
                 $order->set_currency($decrypted->currency);
-                $order->set_total($decrypted->amount);
+                $order->set_total($cart_discount, 'cart_discount');
+                $order->set_total($decrypted->amount, 'total');
                 return $order->update_status('completed');
-                
-                
-                
             }
 
     }
