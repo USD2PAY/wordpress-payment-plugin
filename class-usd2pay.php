@@ -247,7 +247,7 @@ function cp_load_usd2payment_gateway()
                 <tfoot>
                     <tr>
                     <th>Webhook URL</th>
-                    <td><?= get_rest_url(null, 'usd2pay/v1/webhook'); ?>
+                    <td><input type="text" disabled value="<?= get_rest_url(null, 'usd2pay/v1/webhook'); ?>" />
                     <p>Copy this URL to create a new webhook in <strong>Merchant Dashboard</strong> and copy the signature secret to the above <strong>Signature Secret</strong> field.</p>
                     </td>
                     </tr>
@@ -295,7 +295,6 @@ function cp_load_usd2payment_gateway()
                 // 1.0.0 redirect to payment out if redirect flow is selected (or no flow selected)
                 
                     $amount = $order->get_total() * $this->settings['exchange'];
-                    // $currency = $order->get_currency();
                     $currency = 'USDT';
                     $customer_name = $order->get_billing_first_name() . " " . $order->get_billing_last_name();
                     $customer_email = $order_data['billing']['email'];
@@ -304,8 +303,6 @@ function cp_load_usd2payment_gateway()
                     
                     $return_url = $order->get_checkout_order_received_url();
                     $cancel_url = $payment_url;
-                    
-
                     $result = Usd2Pay_Payment_Api::request_payment($order_id, $currency, $amount, $customer_email, $merchant_id, $secret_key);
 
                     if (isset($result['error'])) {
