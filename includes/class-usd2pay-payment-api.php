@@ -22,7 +22,7 @@ class Usd2Pay_Payment_Api
      *
      * @var string $usd2pay_payment_url
      */
-    protected static $usd2pay_api_payment_url = 'http://355fe88fb759.ngrok.io/customer_api/v2/merchant/'; // + :merchantId/order/
+    protected static $usd2pay_api_payment_url = 'http://api.usd2pay.com/customer_api/v2/merchant/'; // + :merchantId/order/
 
     /**
      * Get http response
@@ -70,29 +70,31 @@ class Usd2Pay_Payment_Api
         // // if wordpress error
         // echo "<script> console.log('" . is_wp_error($response) .  "')</script>";
         // echo "<script> console.log('" . wp_remote_retrieve_response_code( $response )  .  "')</script>";
-        
+         
         if (is_wp_error($response)) {
             $result['error'] = $response->get_error_message();
             $result['request'] = $data;
             return $result;
         }
-
+        
         if($response['response']["code"] != 200) {
             $result['error'] = $response['response']["message"];
             $result['request'] = $data;
             $result['endpoint'] = $url;
+            
             return $result;
         }
 
         $response = wp_remote_retrieve_body($response);
-        
         $response_json = json_decode($response, true);
 
         // if outgoing request get back a normal response, but containing an error field in JSON body
+        
         if ($response_json['error']) {
             $result['error'] = $response_json['error'];
             $result['error']['message'] = $result['error']['param'] . ' ' . $result['error']['code'];
             $result['request'] = $data;
+
             return $result;
         }
 
@@ -122,7 +124,7 @@ class Usd2Pay_Payment_Api
         $data['hash'] = hash('sha256', $merchant_id.$data['customerEmail'].$data['merchantCompareOrderId'].$data['amount'].$data['currency'].$secret_key);
         
         $apiEndPoint = self::$usd2pay_api_payment_url . $merchant_id . '/order';
-    
+
         return self::get_http_response($apiEndPoint, $secret_key, 'post', $data);
     }
 
