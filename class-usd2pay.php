@@ -629,7 +629,7 @@ function usd2pay_process_webhook(WP_REST_Request $request)
     // return $currency;
     if ($decrypted->currency == "USDT") {
 
-        // handle payment capture event from Crypto.com Pay server webhook
+
         // if payment is captured (i.e. status = 'succeeded'), set woo order status to processing
         /**
          * {
@@ -644,22 +644,43 @@ function usd2pay_process_webhook(WP_REST_Request $request)
             $order_id = $decrypted->merchantOrderId;
             $order = wc_get_order($order_id);
             
+            $order_array = new ArrayObject();
             
-            $usd2pay_exchange = get_post_meta( $order->get_id(), 'usd2pay_exchange', true );
-            // return intval($usd2pay_exchange);
-            if (!is_null($order)) {
-                $cart_discount = 0;
+            if ($order_id) {
+                
                 foreach ($order->get_items() as $item_id => $item ) {
-                    $item_quantity  = $item->get_quantity(); // Get the item quantity
-                    $item_total  = $item->get_total(); // Get the item line total non discounted
-                    echo '| Quantity: '.$item_quantity.' | Item total: '. number_format( $item_total, 2 );
-                    $cart_discount += $item_total;
+                    $order_array->append(array('name' => $item->get_name(), 'product_id' => $item->get_product_id(), 'quantity' => $item->get_quantity()));                      
                 }
-                $cart_discount = $cart_discount - $decrypted->amount;
-                $order->set_currency($decrypted->currency);
-                $order->set_total($cart_discount, 'cart_discount');
-                $order->set_total($decrypted->amount, 'total');
+                do_action('woocommerce_resume_order', $order_id);
+                $order->remove_order_items();
+            }
+            
+            if (!is_null($order)) {  
+                $order->set_currency("USDT");
+            
+                foreach ($order_array as $name_list) {
+                    
+                    $order_item_id = wc_add_order_item( $order_id, array(
+                 	    'order_item_name' => $name_list["name"],
+                    ));
+                    wc_add_order_item_meta( $order_item_id, '_qty', $name_list["quantity"], true ); // quantity
+                    wc_add_order_item_meta( $order_item_id, '_product_id', $name_list["product_id"], true );
+                    wc_add_order_item_meta( $order_item_id, '_fee_amount', 0, true );
+                    wc_add_order_item_meta( $order_item_id, '_line_total', 0, true );
+                }
+
+ 
+                $order->set_total($decrypted->amount);
+                $order_item_id = wc_add_order_item( $order_id, array(
+                 	    'order_item_name' => 'Usdt Price',
+                ));
+                wc_add_order_item_meta( $order_item_id, '_fee_amount', $decrypted->amount, true );
+                wc_add_order_item_meta( $order_item_id, '_line_total', $decrypted->amount, true );
+                
+                $order->calculate_totals();
+            
                 return $order->update_status('completed');
+                
             }
 
     }
