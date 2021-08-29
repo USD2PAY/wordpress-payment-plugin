@@ -313,7 +313,7 @@ function cp_load_usd2payment_gateway()
                         );
                     }
                     
-                    $redirect = 'http://localhost:8080/merchant#/pay/'.$result['success']['data']["address"].'/'.$result['success']['data']["cryptoAmount"].'/'.$result['success']['data']["amount"].'/'.$result['success']['data']["currency"].'/'.$result['success']['data']["tokenAddress"].'/'.$merchant_id.'/'.$result['success']['data']["orderId"];
+                    $redirect = 'http://api.usd2pay.com/merchant#/pay/'.$result['success']['data']["address"].'/'.$result['success']['data']["cryptoAmount"].'/'.$result['success']['data']["amount"].'/'.$result['success']['data']["currency"].'/'.$result['success']['data']["tokenAddress"].'/'.$merchant_id.'/'.$result['success']['data']["orderId"];
                     
                     $payment_id = $result['success']['data']['orderId'];
                     $order->add_meta_data('usd2pay_paymentId', $payment_id, true);
